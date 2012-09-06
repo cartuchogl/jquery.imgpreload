@@ -45,6 +45,7 @@ if ('undefined' != typeof jQuery)
 			if ('string' == typeof imgs) { imgs = new Array(imgs); }
 
 			var loaded = new Array();
+			var loaded_count = 0;
 
 			$.each(imgs,function(i,elem)
 			{
@@ -61,19 +62,20 @@ if ('undefined' != typeof jQuery)
 					img_obj = elem;
 				}
 
-				$(img).bind('load error', function(e)
+				$(img).bind('load error', function(i) { return function(e)
 				{
-					loaded.push(img_obj);
+					loaded_count++;
+					loaded[i] = img_obj;
 
 					$.data(img_obj, 'loaded', ('error'==e.type)?false:true);
 					
 					if (settings.each instanceof Function) { settings.each.call(img_obj); }
 
 					// http://jsperf.com/length-in-a-variable
-					if (loaded.length>=imgs.length && settings.all instanceof Function) { settings.all.call(loaded); }
+					if (loaded_count>=imgs.length && settings.all instanceof Function) { settings.all.call(loaded); }
 
 					$(this).unbind('load error');
-				});
+				}}(i));
 
 				img.src = url;
 			});
